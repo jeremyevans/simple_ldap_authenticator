@@ -19,5 +19,4 @@ Usage is fairly simple:
     end
   end
 
-svn: svn://code.jeremyevans.net/rails/plugins/simple_ldap_authenticator
-file: http://code.jeremyevans.net/code/simple_ldap_authenticator.tar.gz
+github: http://github.com/jeremyevans/simple_ldap_authenticator/tree/master
