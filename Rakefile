@@ -1,22 +1,16 @@
 require 'rake'
-require 'rake/testtask'
+require 'rake/clean'
 require 'rake/rdoctask'
 
-desc 'Default: run unit tests.'
-task :default => :test
-
-desc 'Test the simple_ldap_authenticator plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
+Rake::RDocTask.new do |rdoc|
+  rdoc.rdoc_dir = "rdoc"
+  rdoc.options += ["--quiet", "--line-numbers", "--inline-source"]
+  rdoc.main = "README"
+  rdoc.title = "simple_ldap_authenticator: Easy authentication to an LDAP server(s)"
+  rdoc.rdoc_files.add ["README", "LICENSE", "lib/simple_ldap_authenticator.rb"]
 end
 
-desc 'Generate documentation for the simple_ldap_authenticator plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'SimpleLdapAuthenticator'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+desc "Package simple_ldap_authenticator"
+task :package do
+  sh %{gem build simple_ldap_authenticator.gemspec}
 end
