@@ -92,7 +92,9 @@ class SimpleLdapAuthenticator
     
     # Check the validity of a login/password combination
     def valid?(login, password)
-      if ldap_library == 'net/ldap'
+      if password.to_s == ''
+        false
+      elsif ldap_library == 'net/ldap'
         connection.authenticate(login_format % login.to_s, password.to_s)
         begin
           if connection.bind
