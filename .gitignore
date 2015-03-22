@@ -1,1 +1,2 @@
-rdoc/
+/rdoc
+/simple_ldap_authenticator-*.gem
