@@ -21,7 +21,7 @@ jobs:
       BUNDLE_GEMFILE: .ci.gemfile
     steps:
     - uses: actions/checkout@v2
-    - run: sudo apt-get -yqq install libldap-dev
+    - run: sudo apt-get -yqq install libldap-dev libsasl2-dev
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
