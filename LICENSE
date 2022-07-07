@@ -1,4 +1,6 @@
-Copyright (c) 2004-2007 Jeremy Evans
+Copyright (c) 2006-2022 Jeremy Evans
+
+test/ldapserver.rb Copyright (c) 2006-2011 by Francis Cianfrocca and other contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal

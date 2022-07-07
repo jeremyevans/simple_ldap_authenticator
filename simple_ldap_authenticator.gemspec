@@ -9,4 +9,9 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ["LICENSE"]
   s.require_paths = ["lib"]
   s.rdoc_options = %w'--inline-source --line-numbers README lib'
+
+  s.add_development_dependency "minitest-global_expectations"
+  s.add_development_dependency "eventmachine"
+  s.add_development_dependency "net-ldap"
+  s.add_development_dependency "ldap"
 end
