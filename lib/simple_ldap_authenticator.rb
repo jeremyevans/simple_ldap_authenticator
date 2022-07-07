@@ -16,7 +16,7 @@
 # * port = 3289 # instead of 389 for LDAP or 636 for LDAPS
 # * logger = RAILS_DEFAULT_LOGGER # for logging authentication successes/failures
 #
-# The class is used as a global variable, you are not supposed to create an
+# The class is used as a singleton, you are not supposed to create an
 # instance of it. For example:
 #
 #    require 'simple_ldap_authenticator'
@@ -31,17 +31,19 @@
 #      end
 #    end
 class SimpleLdapAuthenticator
+  @servers = ['127.0.0.1']
+  @use_ssl = false
+  @login_format = '%s'
+
   class << self
-    @servers = ['127.0.0.1']
-    @use_ssl = false
-    @login_format = '%s'
-    attr_accessor :servers, :use_ssl, :port, :login_format, :logger, :connection, :ldap_library
+    attr_accessor :servers, :use_ssl, :login_format, :logger, :ldap_library
+    attr_writer :port, :connection
     
     # Load the required LDAP library, either 'ldap' or 'net/ldap'
     def load_ldap_library
       return if @ldap_library_loaded
-      if ldap_library
-        if ldap_library == 'net/ldap'
+      if @ldap_library
+        if @ldap_library == 'net/ldap'
           require 'net/ldap'
         else
           require 'ldap'
@@ -51,10 +53,10 @@ class SimpleLdapAuthenticator
         begin
           require 'ldap'
           require 'ldap/control'
-          ldap_library = 'ldap'
+          @ldap_library = 'ldap'
         rescue LoadError
           require 'net/ldap'
-          ldap_library = 'net/ldap'
+          @ldap_library = 'net/ldap'
         end
       end
       @ldap_library_loaded = true
@@ -98,14 +100,14 @@ class SimpleLdapAuthenticator
         connection.authenticate(login_format % login.to_s, password.to_s)
         begin
           if connection.bind
-              logger.info("Authenticated #{login.to_s} by #{server}") if logger
-              true
-            else
-              logger.info("Error attempting to authenticate #{login.to_s} by #{server}: #{connection.get_operation_result.code} #{connection.get_operation_result.message}") if logger
-              switch_server unless connection.get_operation_result.code == 49
-              false
-            end
-        rescue Net::LDAP::LdapError => error
+            logger.info("Authenticated #{login.to_s} by #{server}") if logger
+            true
+          else
+            logger.info("Error attempting to authenticate #{login.to_s} by #{server}: #{connection.get_operation_result.code} #{connection.get_operation_result.message}") if logger
+            switch_server unless connection.get_operation_result.code == 49
+            false
+          end
+        rescue Net::LDAP::Error, SocketError, SystemCallError => error
           logger.info("Error attempting to authenticate #{login.to_s} by #{server}: #{error.message}") if logger
           switch_server
           false
