@@ -20,5 +20,5 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency "minitest-global_expectations"
   s.add_development_dependency "eventmachine"
   s.add_development_dependency "net-ldap"
-  s.add_development_dependency "ldap"
+  s.add_development_dependency "ruby-ldap"
 end
