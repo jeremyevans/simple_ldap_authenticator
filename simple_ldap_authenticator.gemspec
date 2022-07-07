@@ -10,6 +10,13 @@ spec = Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rdoc_options = %w'--inline-source --line-numbers README lib'
 
+  s.metadata          = { 
+    'bug_tracker_uri'   => 'https://github.com/jeremyevans/simple_ldap_authenticator/issues',
+    'changelog_uri'     => 'https://github.com/jeremyevans/simple_ldap_authenticator/blob/master/CHANGELOG',
+    'mailing_list_uri'  => 'https://github.com/jeremyevans/simple_ldap_authenticator/discussions',
+    "source_code_uri"   => 'https://github.com/jeremyevans/simple_ldap_authenticator'
+  }
+
   s.add_development_dependency "minitest-global_expectations"
   s.add_development_dependency "eventmachine"
   s.add_development_dependency "net-ldap"
