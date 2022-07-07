@@ -1,0 +1,17 @@
+= master
+
+* Make fallback to net/ldap work if ldap is not installed (jeremyevans)
+
+* Make default servers, use_ssl, and login_format settings apply (jeremyevans)
+
+* Work with newer net/ldap versions that use Net::LDAP::Error for errors (jeremyevans)
+
+* Avoid verbose mode warnings (jeremyevans)
+
+= 1.0.1 (2011-08-03)
+
+* Fix issue where an empty password would be accepted as a valid anonymous bind (jeremyevans)
+
+= 1.0.0 (2006-08-25)
+
+* Initial public release
