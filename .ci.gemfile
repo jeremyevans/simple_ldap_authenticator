@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem "rake"
+gem "minitest-global_expectations"
+gem "net-ldap"
+gem "ldap"
+gem "eventmachine"
