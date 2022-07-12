@@ -283,7 +283,7 @@ if __FILE__ == $0
   require 'net/ldap'
   LdapServerAsnSyntax = Net::BER.compile_syntax(LdapServer::LdapServerAsnSyntaxTemplate)
   EventMachine.run do
-    port = (ENV['PORT'] || 3890).to_i
+    port = (ENV['PORT'] || 43890).to_i
     EventMachine.start_server "127.0.0.1", port, LdapServer
     #EventMachine.add_periodic_timer 60, proc { $logger.info "heartbeat" }
     #$logger.info "started LDAP server on 127.0.0.1 port #{port}"
