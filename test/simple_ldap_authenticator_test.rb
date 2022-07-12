@@ -17,7 +17,7 @@ require 'net/ldap'
 require 'ldap'
 
 ruby = ENV['RUBY'] || 'ruby'
-port = (ENV['PORT'] || 3890).to_i
+port = (ENV['PORT'] || 43890).to_i
 logger = []
 def logger.method_missing(*a)
   self << a
