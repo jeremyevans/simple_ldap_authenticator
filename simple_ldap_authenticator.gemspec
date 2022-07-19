@@ -1,6 +1,6 @@
-spec = Gem::Specification.new do |s| 
+Gem::Specification.new do |s| 
   s.name = "simple_ldap_authenticator"
-  s.version = "1.0.1"
+  s.version = "1.1.0"
   s.author = "Jeremy Evans"
   s.email = "code@jeremyevans.net"
   s.platform = Gem::Platform::RUBY

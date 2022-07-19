@@ -1,4 +1,4 @@
-= master
+= 1.1.0 (2022-07-19)
 
 * Make fallback to net/ldap work if ldap is not installed (jeremyevans)
 
