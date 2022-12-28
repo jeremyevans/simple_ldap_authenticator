@@ -3,5 +3,10 @@ source 'https://rubygems.org'
 gem "rake"
 gem "minitest-global_expectations"
 gem "net-ldap"
-gem "ruby-ldap"
 gem "eventmachine"
+
+if RUBY_VERSION >= '3.2'
+  gem "ruby-ldap", :git => 'https://github.com/jeremyevans/ruby-ldap'
+else
+  gem "ruby-ldap"
+end
