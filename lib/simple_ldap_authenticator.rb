@@ -94,34 +94,36 @@ class SimpleLdapAuthenticator
     
     # Check the validity of a login/password combination
     def valid?(login, password)
-      if password.to_s == ''
+      login = login.to_s
+      password = password.to_s
+      if password == '' || password.include?("\0") || login.include?("\0")
         false
       elsif ldap_library == 'net/ldap'
-        connection.authenticate(login_format % login.to_s, password.to_s)
+        connection.authenticate(login_format % login, password)
         begin
           if connection.bind
-            logger.info("Authenticated #{login.to_s} by #{server}") if logger
+            logger.info("Authenticated #{login} by #{server}") if logger
             true
           else
-            logger.info("Error attempting to authenticate #{login.to_s} by #{server}: #{connection.get_operation_result.code} #{connection.get_operation_result.message}") if logger
+            logger.info("Error attempting to authenticate #{login} by #{server}: #{connection.get_operation_result.code} #{connection.get_operation_result.message}") if logger
             switch_server unless connection.get_operation_result.code == 49
             false
           end
         rescue Net::LDAP::Error, SocketError, SystemCallError => error
-          logger.info("Error attempting to authenticate #{login.to_s} by #{server}: #{error.message}") if logger
+          logger.info("Error attempting to authenticate #{login} by #{server}: #{error.message}") if logger
           switch_server
           false
         end
       else
         connection.unbind if connection.bound?
         begin
-          connection.bind(login_format % login.to_s, password.to_s)
+          connection.bind(login_format % login, password)
           connection.unbind
-          logger.info("Authenticated #{login.to_s} by #{server}") if logger
+          logger.info("Authenticated #{login} by #{server}") if logger
           true
         rescue LDAP::ResultError => error
           connection.unbind if connection.bound?
-          logger.info("Error attempting to authenticate #{login.to_s} by #{server}: #{error.message}") if logger
+          logger.info("Error attempting to authenticate #{login} by #{server}: #{error.message}") if logger
           switch_server unless error.message == 'Invalid credentials'
           false
         end
