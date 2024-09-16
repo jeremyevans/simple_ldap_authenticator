@@ -1,4 +1,4 @@
-= master
+= 1.2.0 (2024-09-16)
 
 * Do not require load_ldap_library be called before use of valid? (jeremyevans) (#3)
 
