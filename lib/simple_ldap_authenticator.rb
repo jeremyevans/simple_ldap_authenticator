@@ -96,6 +96,7 @@ class SimpleLdapAuthenticator
     def valid?(login, password)
       login = login.to_s
       password = password.to_s
+      connection = self.connection
       if password == '' || password.include?("\0") || login.include?("\0")
         false
       elsif ldap_library == 'net/ldap'
