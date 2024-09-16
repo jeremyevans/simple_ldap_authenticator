@@ -14,22 +14,19 @@
 # * servers = ['dc1.domain.com', 'dc2.domain.com'] # names/addresses of LDAP servers to use
 # * use_ssl = true # for logging in via LDAPS
 # * port = 3289 # instead of 389 for LDAP or 636 for LDAPS
-# * logger = RAILS_DEFAULT_LOGGER # for logging authentication successes/failures
+# * logger = Logger.new($stdout) # for logging authentication successes/failures
 #
 # The class is used as a singleton, you are not supposed to create an
 # instance of it. For example:
 #
-#    require 'simple_ldap_authenticator'
-#    SimpleLdapAuthenticator.servers = %w'dc1.domain.com dc2.domain.com'
-#    SimpleLdapAuthenticator.use_ssl = true
-#    SimpleLdapAuthenticator.login_format = '%s@domain.com'
-#    SimpleLdapAuthenticator.logger = RAILS_DEFAULT_LOGGER
-#    class LoginController < ApplicationController 
-#      def login
-#        return redirect_to(:action=>'try_again') unless SimpleLdapAuthenticator.valid?(params[:username], params[:password])
-#        session[:username] = params[:username]
-#      end
-#    end
+#  require 'simple_ldap_authenticator'
+#
+#  SimpleLdapAuthenticator.servers = %w'dc1.domain.com dc2.domain.com'
+#  SimpleLdapAuthenticator.use_ssl = true
+#  SimpleLdapAuthenticator.login_format = '%s@domain.com'
+#
+#  SimpleLdapAuthenticator.valid?(username, password)
+#  # => true or false (or raise if there is an issue connecting to the server)
 class SimpleLdapAuthenticator
   @servers = ['127.0.0.1']
   @use_ssl = false

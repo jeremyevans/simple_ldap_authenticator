@@ -4,19 +4,17 @@ SimpleLdapAuthenticator
 Allows for simple authentication to an LDAP server with a minimum of
 configuration.  Requires either Ruby/LDAP or Net::LDAP.   
 
-Usage is fairly simple:
+Example Usage:
+
   require 'simple_ldap_authenticator'
+  require 'logger'
+
   SimpleLdapAuthenticator.servers = %w'dc1.domain.com dc2.domain.com'
   SimpleLdapAuthenticator.use_ssl = true
-  SimpleLdapAuthenticator.login_format = '%s @domain.com'
-  SimpleLdapAuthenticator.logger = RAILS_DEFAULT_LOGGER
-  class LoginController < ApplicationController
-    def login
-      return redirect_to(:action=>'try_again') unless \
-        SimpleLdapAuthenticator.valid?(params[:username], \
-        params[:password])  
-      session[:username] = params[:username]
-    end
-  end
+  SimpleLdapAuthenticator.login_format = '%s@domain.com'
+  SimpleLdapAuthenticator.logger = Logger.new($stdout)
 
-github: http://github.com/jeremyevans/simple_ldap_authenticator/tree/master
+  SimpleLdapAuthenticator.valid?(username, password)
+  # => true or false (or raise if there is an issue connecting to the server)
+
+github: http://github.com/jeremyevans/simple_ldap_authenticator
