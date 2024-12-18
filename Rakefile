@@ -12,7 +12,7 @@ end
 desc "Run tests"
 task :test do
   ruby = ENV['RUBY'] ||= FileUtils::RUBY 
-  sh "#{ruby} #{"-w" if RUBY_VERSION >= '3'} test/simple_ldap_authenticator_test.rb"
+  sh "#{ruby} #{"-w" if RUBY_VERSION >= '3'} #{'-W:strict_unused_block' if RUBY_VERSION >= '3.4'} test/simple_ldap_authenticator_test.rb"
 end
 
 task :default => :test
