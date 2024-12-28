@@ -5,6 +5,11 @@ gem "minitest-global_expectations"
 gem "net-ldap"
 gem "eventmachine"
 
+if RUBY_VERSION >= '3.4'
+  # Needed for hidden dependency in net-ldap
+  gem "base64"
+end
+
 if RUBY_VERSION >= '3.2'
   gem "ruby-ldap", :git => 'https://github.com/jeremyevans/ruby-ldap'
 else
