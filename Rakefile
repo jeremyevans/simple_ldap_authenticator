@@ -26,10 +26,23 @@ end
 
 ### RDoc
 
-require "rdoc/task"
+desc "Generate rdoc"
+task :rdoc do
+  rdoc_dir = "rdoc"
+  rdoc_opts = ["--line-numbers", "--inline-source", '--title', 'simple_ldap_authenticator: Easy authentication to an LDAP server(s)']
 
-RDoc::Task.new do |rdoc|
-  rdoc.rdoc_dir = "rdoc"
-  rdoc.options += ['--inline-source', '--line-numbers', '--title', 'simple_ldap_authenticator: Easy authentication to an LDAP server(s)', '--main', 'README', '-f', 'hanna']
-  rdoc.rdoc_files.add %w"README LICENSE lib/simple_ldap_authenticator.rb"
+  begin
+    gem 'hanna'
+    rdoc_opts.concat(['-f', 'hanna'])
+  rescue Gem::LoadError
+  end
+
+  rdoc_opts.concat(['--main', 'README', "-o", rdoc_dir] +
+    %w"README CHANGELOG LICENSE lib/simple_ldap_authenticator.rb"
+  )
+
+  FileUtils.rm_rf(rdoc_dir)
+
+  require "rdoc"
+  RDoc::RDoc.new.document(rdoc_opts)
 end
