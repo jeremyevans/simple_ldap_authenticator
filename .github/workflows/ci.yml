@@ -24,10 +24,10 @@ jobs:
           - { os: ubuntu-24.04, ruby: 2.7 }
           - { os: ubuntu-24.04, ruby: "3.0" }
           - { os: ubuntu-24.04, ruby: 3.1 }
-          - { os: ubuntu-26.04, ruby: 3.2 }
-          - { os: ubuntu-26.04, ruby: 3.3 }
-          - { os: ubuntu-26.04, ruby: 3.4 }
-          - { os: ubuntu-26.04, ruby: "4.0" }
+          - { os: ubuntu-24.04, ruby: 3.2 }
+          - { os: ubuntu-24.04, ruby: 3.3 }
+          - { os: ubuntu-24.04, ruby: 3.4 }
+          - { os: ubuntu-24.04, ruby: "4.0" }
           - { os: ubuntu-22.04, ruby: "1.9.3" }
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.ruby }}
