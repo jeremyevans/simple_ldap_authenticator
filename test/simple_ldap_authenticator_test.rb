@@ -74,6 +74,9 @@ describe SimpleLdapAuthenticator do
         end
         SimpleLdapAuthenticator.valid?('user', 'password').must_equal true
         SimpleLdapAuthenticator.valid?('user', 'password2').must_equal false
+        if use_logger && !use_ldap
+          logger.last.must_equal [:info, "Error attempting to authenticate user by 127.0.0.1: 49 Invalid Credentials Make my day"]
+        end
       end
     end
   end
