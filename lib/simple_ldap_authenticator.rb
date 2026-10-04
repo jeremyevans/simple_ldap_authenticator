@@ -103,8 +103,14 @@ class SimpleLdapAuthenticator
             logger.info("Authenticated #{login} by #{server}") if logger
             true
           else
-            logger.info("Error attempting to authenticate #{login} by #{server}: #{connection.get_operation_result.code} #{connection.get_operation_result.message}") if logger
-            switch_server unless connection.get_operation_result.code == 49
+            result = connection.get_operation_result
+            if logger
+              detail = String.new("#{result.code} #{result.message}")
+              msg = result.error_message.to_s.strip
+              detail << " #{msg}" unless msg.empty?
+              logger.info("Error attempting to authenticate #{login} by #{server}: #{detail}")
+            end
+            switch_server unless result.code == 49
             false
           end
         rescue Net::LDAP::Error, SocketError, SystemCallError => error
