@@ -1,3 +1,7 @@
+= master
+
+* Log the LDAP diagnostic message on authentication failure (wuarmin) (#5, #6)
+
 = 1.2.0 (2024-09-16)
 
 * Do not require load_ldap_library be called before use of valid? (jeremyevans) (#3)
