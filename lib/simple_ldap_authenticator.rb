@@ -105,10 +105,7 @@ class SimpleLdapAuthenticator
           else
             result = connection.get_operation_result
             if logger
-              detail = String.new("#{result.code} #{result.message}")
-              msg = result.error_message.to_s.strip
-              detail << " #{msg}" unless msg.empty?
-              logger.info("Error attempting to authenticate #{login} by #{server}: #{detail}")
+              logger.info("Error attempting to authenticate #{login} by #{server}: #{result.code} #{result.message} #{result.error_message.to_s.strip}")
             end
             switch_server unless result.code == 49
             false
