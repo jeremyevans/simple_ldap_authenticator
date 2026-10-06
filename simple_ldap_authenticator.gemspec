@@ -1,6 +1,6 @@
 Gem::Specification.new do |s| 
   s.name = "simple_ldap_authenticator"
-  s.version = "1.2.0"
+  s.version = "1.3.0"
   s.author = "Jeremy Evans"
   s.email = "code@jeremyevans.net"
   s.platform = Gem::Platform::RUBY
@@ -9,7 +9,9 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["LICENSE"]
   s.require_paths = ["lib"]
   s.rdoc_options = %w'--inline-source --line-numbers README lib'
+  s.license = 'MIT'
 
+  s.homepage = "http://github.com/jeremyevans/simple_ldap_authenticator"
   s.metadata          = { 
     'bug_tracker_uri'   => 'https://github.com/jeremyevans/simple_ldap_authenticator/issues',
     'changelog_uri'     => 'https://github.com/jeremyevans/simple_ldap_authenticator/blob/master/CHANGELOG',
@@ -17,6 +19,7 @@ Gem::Specification.new do |s|
     "source_code_uri"   => 'https://github.com/jeremyevans/simple_ldap_authenticator'
   }
 
+  s.required_ruby_version = ">= 1.9.2"
   s.add_development_dependency "minitest-global_expectations"
   s.add_development_dependency "eventmachine"
   s.add_development_dependency "net-ldap"
