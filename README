@@ -17,4 +17,14 @@ Example Usage:
   SimpleLdapAuthenticator.valid?(username, password)
   # => true or false (or raise if there is an issue connecting to the server)
 
+By default, a new connection object is created for each call to valid?,
+so valid? is safe to call concurrently from multiple threads.  If you only
+use SimpleLdapAuthenticator from a single thread, you can reuse a single
+connection object for all calls to valid?:
+
+  SimpleLdapAuthenticator.single_threaded = true
+
+Do not enable single threaded mode if valid? may be called concurrently,
+as that can result in invalid passwords being considered valid.
+
 github: http://github.com/jeremyevans/simple_ldap_authenticator

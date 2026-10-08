@@ -15,6 +15,15 @@
 # * use_ssl = true # for logging in via LDAPS
 # * port = 3289 # instead of 389 for LDAP or 636 for LDAPS
 # * logger = Logger.new($stdout) # for logging authentication successes/failures
+# * single_threaded = true # reuse a single connection, only safe if not using threads
+#
+# By default, a new connection object is created for each call to valid?,
+# so that valid? is safe to call concurrently from multiple threads.  If
+# you are only using SimpleLdapAuthenticator in a single thread, you can set
+# single_threaded = true, which reuses a single connection object for all
+# calls to valid?.  Do not set single_threaded = true if valid? may be
+# called concurrently, as that can result in invalid passwords being
+# considered valid.
 #
 # The class is used as a singleton, you are not supposed to create an
 # instance of it. For example:
@@ -31,9 +40,11 @@ class SimpleLdapAuthenticator
   @servers = ['127.0.0.1']
   @use_ssl = false
   @login_format = '%s'
+  @single_threaded = false
+  @switch_server_mutex = Mutex.new
 
   class << self
-    attr_accessor :servers, :use_ssl, :login_format, :logger, :ldap_library
+    attr_accessor :servers, :use_ssl, :login_format, :logger, :ldap_library, :single_threaded
     attr_writer :port, :connection
     
     # Load the required LDAP library, either 'ldap' or 'net/ldap'
@@ -64,13 +75,17 @@ class SimpleLdapAuthenticator
       servers[0]
     end
     
-    # The connection to the LDAP server.  A single connection is made and the
-    # connection is only changed if a server returns an error other than 
-    # invalid password.
+    # The shared connection to the LDAP server, only used in single threaded
+    # mode.  A single connection is made and the connection is only changed if
+    # a server returns an error other than invalid password.
     def connection
-      return @connection if @connection
+      @connection ||= new_connection(server)
+    end
+
+    # Create a new connection object for the given LDAP server.
+    def new_connection(server)
       load_ldap_library
-      @connection = if ldap_library == 'net/ldap'
+      if ldap_library == 'net/ldap'
         Net::LDAP.new(:host=>server, :port=>(port), :encryption=>(:simple_tls if use_ssl))
       else
         (use_ssl ? LDAP::SSLConn : LDAP::Conn).new(server, port)
@@ -83,23 +98,30 @@ class SimpleLdapAuthenticator
     end
     
     # Disconnect from current LDAP server and use a different LDAP server on the
-    # next authentication attempt
-    def switch_server
-      self.connection = nil
-      servers << servers.shift
+    # next authentication attempt.  If failed_server is given, only switch
+    # servers if failed_server is still the current server, so that multiple
+    # threads failing on the same server only switch servers once.
+    def switch_server(failed_server = nil)
+      @switch_server_mutex.synchronize do
+        if failed_server.nil? || server.equal?(failed_server)
+          self.connection = nil
+          servers << servers.shift
+        end
+      end
     end
     
     # Check the validity of a login/password combination
     def valid?(login, password)
       login = login.to_s
       password = password.to_s
-      connection = self.connection
-      if password == '' || password.include?("\0") || login.include?("\0")
-        false
-      elsif ldap_library == 'net/ldap'
-        connection.authenticate(login_format % login, password)
+      return false if password == '' || password.include?("\0") || login.include?("\0")
+
+      server = self.server
+      connection = single_threaded ? self.connection : new_connection(server)
+      if ldap_library == 'net/ldap'
+        auth = {:method=>:simple, :username=>login_format % login, :password=>password}
         begin
-          if connection.bind
+          if connection.bind(auth)
             logger.info("Authenticated #{login} by #{server}") if logger
             true
           else
@@ -107,12 +129,12 @@ class SimpleLdapAuthenticator
             if logger
               logger.info("Error attempting to authenticate #{login} by #{server}: #{result.code} #{result.message} #{result.error_message.to_s.strip}")
             end
-            switch_server unless result.code == 49
+            switch_server(server) unless result.code == 49
             false
           end
         rescue Net::LDAP::Error, SocketError, SystemCallError => error
           logger.info("Error attempting to authenticate #{login} by #{server}: #{error.message}") if logger
-          switch_server
+          switch_server(server)
           false
         end
       else
@@ -125,7 +147,7 @@ class SimpleLdapAuthenticator
         rescue LDAP::ResultError => error
           connection.unbind if connection.bound?
           logger.info("Error attempting to authenticate #{login} by #{server}: #{error.message}") if logger
-          switch_server unless error.message == 'Invalid credentials'
+          switch_server(server) unless error.message == 'Invalid credentials'
           false
         end
       end
