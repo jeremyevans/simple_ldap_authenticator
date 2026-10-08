@@ -1,8 +1,12 @@
 = master
 
+* [SECURITY] Verify server certificate and hostname by default when using use_ssl with net/ldap backend (jeremyevans) (#9)
+
+* Support setting use_ssl to a hash of TLS options (jeremyevans) (#9)
+
 * Add single_threaded setting, for reusing a single connection object (jeremyevans)
 
-* Make valid? thread-safe by using a separate connection object per call by default (jeremyevans) (#8)
+* [SECURITY] Make valid? thread-safe by using a separate connection object per call by default (jeremyevans) (#8)
 
 = 1.3.0 (2026-10-06)
 
@@ -12,7 +16,7 @@
 
 * Do not require load_ldap_library be called before use of valid? (jeremyevans) (#3)
 
-* Explicitly check for null bytes in login and password in valid? (jeremyevans)
+* [SECURITY] Explicitly check for null bytes in login and password in valid? (jeremyevans)
 
 = 1.1.0 (2022-07-19)
 
@@ -26,7 +30,7 @@
 
 = 1.0.1 (2011-08-03)
 
-* Fix issue where an empty password would be accepted as a valid anonymous bind (jeremyevans)
+* [SECURITY] Fix issue where an empty password would be accepted as a valid anonymous bind (jeremyevans)
 
 = 1.0.0 (2006-08-25)
 

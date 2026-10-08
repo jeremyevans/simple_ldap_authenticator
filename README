@@ -27,4 +27,30 @@ connection object for all calls to valid?:
 Do not enable single threaded mode if valid? may be called concurrently,
 as that can result in invalid passwords being considered valid.
 
+When use_ssl is true, the server's certificate and hostname are verified
+using the default trusted certificates.  You can set use_ssl to a hash of
+TLS options to customize this, such as specifying the CA certificate(s) to
+trust (useful for internal CAs and self-signed certificates, such as those
+commonly used by Active Directory):
+
+  SimpleLdapAuthenticator.use_ssl = {ca_file: '/path/to/ca.pem'}
+
+The :ca_file, :ca_path, and :verify_mode options are supported for both
+ldap and net/ldap backends.  For net/ldap, any option supported by
+OpenSSL::SSL::SSLContext#set_params can be used.  For ldap, only
+those three options are supported. :verify_mode on ldap will default to
+the LDAP behavior (which verifies by default unless the TLS_REQCERT
+setting is set in the system's ldap.conf).
+
+Before version 2, use_ssl = true did not verify the server's
+certificate when using net/ldap.  To get the previous behavior of not
+verifying the server's certificate (not recommended, as it allows
+man-in-the-middle attacks to capture passwords):
+
+  SimpleLdapAuthenticator.use_ssl = {verify_mode: OpenSSL::SSL::VERIFY_NONE}
+
+Note that due to a bug in net/ldap, you should use domain names and
+not IP addresses in the servers array, at least if you are using
+LibreSSL (which follows the SSL spec more closely).
+
 github: http://github.com/jeremyevans/simple_ldap_authenticator

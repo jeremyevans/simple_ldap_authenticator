@@ -12,7 +12,8 @@
 # * login_format = '%s@domain.com' # Active Directory, OR
 # * login_format = 'cn=%s,cn=users,o=organization,c=us' # Other LDAP servers
 # * servers = ['dc1.domain.com', 'dc2.domain.com'] # names/addresses of LDAP servers to use
-# * use_ssl = true # for logging in via LDAPS
+# * use_ssl = true # for logging in via LDAPS, verifying the server certificate
+# * use_ssl = {ca_file: '/path/to/ca.pem'} # for logging in via LDAPS, with TLS options
 # * port = 3289 # instead of 389 for LDAP or 636 for LDAPS
 # * logger = Logger.new($stdout) # for logging authentication successes/failures
 # * single_threaded = true # reuse a single connection, only safe if not using threads
@@ -24,6 +25,30 @@
 # calls to valid?.  Do not set single_threaded = true if valid? may be
 # called concurrently, as that can result in invalid passwords being
 # considered valid.
+#
+# When use_ssl is true, the server's certificate and hostname are verified
+# using the default trusted certificates.  use_ssl can also be set to a hash
+# of TLS options, which are merged into the default TLS options.  The
+# following TLS options are supported for both libraries:
+#
+# :ca_file :: File containing trusted CA certificates.
+# :ca_path :: Directory containing trusted CA certificates.
+# :verify_mode :: Whether to verify the server certificate, should be
+#                 OpenSSL::SSL::VERIFY_PEER or OpenSSL::SSL::VERIFY_NONE
+#                 if given.
+#
+# For net/ldap, any option supported by OpenSSL::SSL::SSLContext#set_params
+# can be used. For ldap, only the three keys given above work.
+#
+# Before version 2, use_ssl = true did not verify the server certificate
+# when using net/ldap.  To restore that behavior (not recommended, as it allows
+# man-in-the-middle attacks), you can disable verification:
+#
+#  SimpleLdapAuthenticator.use_ssl = {verify_mode: OpenSSL::SSL::VERIFY_NONE}
+#
+# With ldap, whether to verify the certificate by default depends on the
+# system's libldap configuration (TLS_REQCERT in ldap.conf). The above setting
+# also disables verification when using ldap.
 #
 # The class is used as a singleton, you are not supposed to create an
 # instance of it. For example:
@@ -86,9 +111,35 @@ class SimpleLdapAuthenticator
     def new_connection(server)
       load_ldap_library
       if ldap_library == 'net/ldap'
-        Net::LDAP.new(:host=>server, :port=>(port), :encryption=>(:simple_tls if use_ssl))
+        if use_ssl
+          tls_opts = use_ssl.is_a?(Hash) ? use_ssl.dup : {}
+          unless tls_opts[:verify_mode]
+            require "openssl"
+            tls_opts[:verify_mode] = OpenSSL::SSL::VERIFY_PEER
+          end
+          encryption_opts = {:method=>:simple_tls, :tls_options=>tls_opts}
+        end
+        Net::LDAP.new(:host=>server, :port=>port, :encryption=>encryption_opts)
+      elsif use_ssl
+        conn = LDAP::SSLConn.new(server, port)
+        if use_ssl.is_a?(Hash) && !use_ssl.empty?
+          use_ssl.each do |k, v|
+            case k
+            when :verify_mode
+              conn.set_option(LDAP::LDAP_OPT_X_TLS_REQUIRE_CERT, v)
+            when :ca_file
+              conn.set_option(LDAP::LDAP_OPT_X_TLS_CACERTFILE, v)
+            when :ca_path
+              conn.set_option(LDAP::LDAP_OPT_X_TLS_CACERTDIR, v)
+            else
+              raise ArgumentError, "unsupported TLS option for ldap library: #{k.inspect}"
+            end
+          end
+          conn.set_option(LDAP::LDAP_OPT_X_TLS_NEWCTX, 0)
+        end
+        conn
       else
-        (use_ssl ? LDAP::SSLConn : LDAP::Conn).new(server, port)
+        LDAP::Conn.new(server, port)
       end
     end
     
@@ -117,8 +168,8 @@ class SimpleLdapAuthenticator
       return false if password == '' || password.include?("\0") || login.include?("\0")
 
       server = self.server
-      connection = single_threaded ? self.connection : new_connection(server)
       if ldap_library == 'net/ldap'
+        connection = single_threaded ? self.connection : new_connection(server)
         auth = {:method=>:simple, :username=>login_format % login, :password=>password}
         begin
           if connection.bind(auth)
@@ -138,6 +189,7 @@ class SimpleLdapAuthenticator
           false
         end
       else
+        connection = (single_threaded && !(use_ssl.is_a?(Hash) && !use_ssl.empty?)) ? self.connection : new_connection(server)
         connection.unbind if connection.bound?
         begin
           connection.bind(login_format % login, password)
