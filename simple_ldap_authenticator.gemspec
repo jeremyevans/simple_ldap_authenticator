@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = ">= 1.9.2"
   s.add_development_dependency "minitest-global_expectations"
-  s.add_development_dependency "eventmachine"
   s.add_development_dependency "net-ldap"
   s.add_development_dependency "ruby-ldap"
 end

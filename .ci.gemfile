@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 gem "rake"
 gem "minitest-global_expectations"
 gem "net-ldap"
-gem "eventmachine"
 
 if RUBY_VERSION >= '3.4'
   # Needed for hidden dependency in net-ldap
