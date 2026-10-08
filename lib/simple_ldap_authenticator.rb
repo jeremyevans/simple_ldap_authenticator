@@ -105,7 +105,7 @@ class SimpleLdapAuthenticator
       @switch_server_mutex.synchronize do
         if failed_server.nil? || server.equal?(failed_server)
           self.connection = nil
-          servers << servers.shift
+          servers.rotate!
         end
       end
     end
