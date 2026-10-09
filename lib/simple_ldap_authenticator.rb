@@ -197,7 +197,6 @@ class SimpleLdapAuthenticator
           logger.info("Authenticated #{login} by #{server}") if logger
           true
         rescue LDAP::ResultError => error
-          connection.unbind if connection.bound?
           logger.info("Error attempting to authenticate #{login} by #{server}: #{error.message}") if logger
           switch_server(server) unless error.message == 'Invalid credentials'
           false

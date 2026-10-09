@@ -262,6 +262,17 @@ describe SimpleLdapAuthenticator do
     end
   end if ssl_specs
 
+  it ".valid? should unbind an already bound connection in single threaded mode with ldap" do
+    SimpleLdapAuthenticator.single_threaded = true
+    SimpleLdapAuthenticator.ldap_library = 'ldap'
+    conn = SimpleLdapAuthenticator.connection
+    conn.bind('user', 'password')
+    conn.bound?.must_equal true
+    SimpleLdapAuthenticator.valid?('user', 'password').must_equal true
+    SimpleLdapAuthenticator.connection.must_be_same_as conn
+    conn.bound?.must_equal false
+  end
+
   it ".port should be 389 or 636 by default" do
     SimpleLdapAuthenticator.port = nil
     SimpleLdapAuthenticator.port.must_equal 389
