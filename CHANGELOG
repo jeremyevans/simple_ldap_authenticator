@@ -1,4 +1,4 @@
-= master
+= 2.0.0 (2026-10-09)
 
 * [SECURITY] Verify server certificate and hostname by default when using use_ssl with net/ldap backend (jeremyevans) (#9)
 
